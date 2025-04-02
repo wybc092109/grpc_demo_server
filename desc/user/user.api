@@ -15,5 +15,4 @@ type (
 service server {
     @handler index
     post /index (Empty) returns (IndexResp)
-    
 }
