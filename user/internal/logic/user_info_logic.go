@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 
 	"grpc_demo_server/user/internal/svc"
 	"grpc_demo_server/user/user"
@@ -24,7 +25,8 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 }
 
 func (l *UserInfoLogic) UserInfo(in *user.UserInfoReq) (*user.UserInfoResp, error) {
-	// todo: add your logic here and delete this line
-
-	return &user.UserInfoResp{}, nil
+	// 在这里编写您的业务逻辑
+	return &user.UserInfoResp{
+		Name: fmt.Sprintf("Hello, %s!", in.Name),
+	}, nil
 }
