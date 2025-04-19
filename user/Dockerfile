@@ -39,8 +39,9 @@ RUN apk add --no-cache ca-certificates tzdata && \
 # 设置工作目录
 WORKDIR /app
 
-# 从构建阶段复制文件
-COPY --from=builder /build/user/user /app/user-binary
+# 从构建阶段复制文件并设置执行权限
+COPY --from=builder /build/user/user /app/
+RUN chmod +x /app/user
 COPY --from=builder /build/user/etc/user.yaml /app/etc/user.yaml
 
 # 设置环境变量
@@ -50,4 +51,4 @@ ENV TZ=Asia/Shanghai
 EXPOSE 8080
 
 # 运行服务
-CMD ["/app/user-binary", "-f", "/app/etc/user.yaml"]
+CMD ["/app/user", "-f", "/app/etc/user.yaml"]
