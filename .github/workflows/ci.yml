@@ -2,7 +2,8 @@ name: CI/CD Pipeline
 
 env:
   REGISTRY: ccr.ccs.tencentyun.com
-  NAMESPACE: ${{ secrets.TENCENT_NAMESPACE }}
+  # NAMESPACE: ${{ secrets.TENCENT_NAMESPACE }}
+  NAMESPACE: wyj_docker
   USER_IMAGE_NAME: ${{ github.event.repository.name }}-user
 
 on:
