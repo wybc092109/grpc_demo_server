@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  api-server:
+    image: ${DOCKER_USERNAME}/grpc-demo-api:latest
+    ports:
+      - "8888:8888"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./etc:/app/etc
+    depends_on:
+      - user-service
+    restart: always
+
+  user-service:
+    image: ${DOCKER_USERNAME}/grpc-demo-user:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./user/etc:/app/etc
+    restart: always
+  user-rpc:
+    build:
+      context: .
+      dockerfile: user/Dockerfile
+    container_name: user-rpc
+    ports:
+      - "8080:8080"
+    networks:
+      - grpc-net
+    restart: always
+
+  main-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: main-api
+    ports:
+      - "8888:8888"
+    networks:
+      - grpc-net
+    depends_on:
+      - user-rpc
+    restart: always
+
+networks:
+  grpc-net:
+    driver: bridge
