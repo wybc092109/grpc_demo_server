@@ -17,7 +17,7 @@ RUN apk update --no-cache && \
     apk add --no-cache git tzdata ca-certificates
 
 # 设置工作目录
-WORKDIR /app
+WORKDIR /build
 
 # 复制Go项目依赖文件
 COPY go.mod go.sum ./
@@ -29,7 +29,7 @@ RUN go mod download
 COPY . .
 
 # 编译Go项目，使用ldflags减小二进制体积
-RUN go build -ldflags="-s -w" -o /app/user user/user.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user ./user.go
 
 # 第二阶段：运行阶段
 FROM alpine:latest
@@ -43,8 +43,8 @@ RUN apk add --no-cache ca-certificates tzdata && \
 WORKDIR /app
 
 # 从构建阶段复制文件
-COPY --from=builder /app/user /app/user
-COPY --from=builder /app/user/etc/user.yaml /app/etc/
+COPY --from=builder /build/user /app/user
+COPY --from=builder /build/etc/user.yaml /app/etc/
 
 # 设置环境变量
 ENV TZ=Asia/Shanghai
