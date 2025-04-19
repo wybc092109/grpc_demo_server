@@ -30,7 +30,7 @@ COPY . /build/
 
 # 编译Go项目，使用ldflags减小二进制体积
 WORKDIR /build
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user/user ./user/user.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user ./user/user.go
 
 # 第二阶段：运行阶段
 FROM alpine:latest
@@ -44,7 +44,7 @@ RUN apk add --no-cache ca-certificates tzdata && \
 WORKDIR /app
 
 # 从构建阶段复制文件
-COPY --from=builder /build/user /app/user
+COPY --from=builder /build/user /app/
 COPY --from=builder /build/user/etc/user.yaml /app/etc/
 
 # 设置环境变量
