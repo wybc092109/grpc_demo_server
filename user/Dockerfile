@@ -26,10 +26,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # 复制源代码
-COPY . .
+COPY . /build/user/
 
 # 编译Go项目，使用ldflags减小二进制体积
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user ./user.go
+WORKDIR /build/user
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user/user ./user.go
 
 # 第二阶段：运行阶段
 FROM alpine:latest
