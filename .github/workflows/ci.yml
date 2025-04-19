@@ -23,8 +23,10 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.TENCENT_CLOUD_USERNAME }}
-          password: ${{ secrets.TENCENT_CLOUD_PASSWORD }}
+        #  username: ${{ secrets.TENCENT_CLOUD_USERNAME }}
+         # password: ${{ secrets.TENCENT_CLOUD_PASSWORD }}
+          username: 100032858376
+          password: 15059775613w
 
       - name: Read version
         id: version
