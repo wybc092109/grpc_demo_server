@@ -26,7 +26,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # 复制源代码
-COPY . /build/user/
+COPY . .
 
 # 编译Go项目，使用ldflags减小二进制体积
 WORKDIR /build/user
