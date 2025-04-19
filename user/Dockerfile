@@ -1,30 +1,56 @@
-# Build stage
-FROM golang:1.20-alpine AS builder
+# 第一阶段：构建阶段
+FROM golang:alpine AS builder
 
+# 标记这是构建阶段
+LABEL stage=gobuilder
+
+# 设置Go编译环境
+ENV CGO_ENABLED 0
+# 设置Go模块代理，加速依赖下载
+ENV GOPROXY https://goproxy.cn,direct
+
+# 使用清华镜像源加速Alpine包管理
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
+
+# 更新Alpine包并安装必要工具
+RUN apk update --no-cache && \
+    apk add --no-cache git tzdata ca-certificates
+
+# 设置工作目录
 WORKDIR /app
 
-# Copy go mod and sum files
+# 复制Go项目依赖文件
 COPY go.mod go.sum ./
 
-# Download dependencies
+# 下载Go依赖
 RUN go mod download
 
-# Copy source code
+# 复制源代码
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/user user/user.go
+# 编译Go项目，使用ldflags减小二进制体积
+RUN go build -ldflags="-s -w" -o /app/user user/user.go
 
-# Final stage
+# 第二阶段：运行阶段
 FROM alpine:latest
 
+# 安装必要的运行时依赖
+RUN apk add --no-cache ca-certificates tzdata && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo "Asia/Shanghai" > /etc/timezone
+
+# 设置工作目录
 WORKDIR /app
 
-# Copy the binary from builder
+# 从构建阶段复制文件
 COPY --from=builder /app/user /app/user
 COPY --from=builder /app/user/etc/user.yaml /app/etc/
 
+# 设置环境变量
+ENV TZ=Asia/Shanghai
+
+# 暴露服务端口
 EXPOSE 8080
 
-# Run the service
+# 运行服务
 CMD ["/app/user", "-f", "/app/etc/user.yaml"]
