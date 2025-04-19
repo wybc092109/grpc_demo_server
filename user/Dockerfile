@@ -44,8 +44,8 @@ RUN apk add --no-cache ca-certificates tzdata && \
 WORKDIR /app
 
 # 从构建阶段复制文件
-COPY --from=builder ./user /app/user
-COPY --from=builder ./etc/user.yaml /app/etc/
+COPY --from=builder /build/user /app/user
+COPY --from=builder /build/etc/user.yaml /app/etc/
 
 # 设置环境变量
 ENV TZ=Asia/Shanghai
