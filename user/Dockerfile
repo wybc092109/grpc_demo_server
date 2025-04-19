@@ -1,12 +1,8 @@
 # 第一阶段：构建阶段
 FROM golang:alpine AS builder
 
-# 标记这是构建阶段
-LABEL stage=gobuilder
-
 # 设置Go编译环境
 ENV CGO_ENABLED 0
-# 设置Go模块代理，加速依赖下载
 ENV GOPROXY https://goproxy.cn,direct
 
 # 使用清华镜像源加速Alpine包管理
@@ -28,9 +24,9 @@ RUN go mod download
 # 复制源代码
 COPY . /build/
 
-# 编译Go项目，使用ldflags减小二进制体积
-WORKDIR /build
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user/user ./user/user.go
+# 编译Go项目
+WORKDIR /build/user
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /build/user/user ./user.go
 
 # 第二阶段：运行阶段
 FROM alpine:latest
@@ -44,8 +40,8 @@ RUN apk add --no-cache ca-certificates tzdata && \
 WORKDIR /app
 
 # 从构建阶段复制文件
-COPY --from=builder /build/user/user /app/user
-COPY --from=builder /build/user/etc/user.yaml /app/etc/
+COPY --from=builder /build/user/user /app/user-binary
+COPY --from=builder /build/user/etc/user.yaml /app/etc/user.yaml
 
 # 设置环境变量
 ENV TZ=Asia/Shanghai
@@ -54,4 +50,4 @@ ENV TZ=Asia/Shanghai
 EXPOSE 8080
 
 # 运行服务
-CMD ["/app/user", "-f", "/app/etc/user.yaml"]
+CMD ["/app/user-binary", "-f", "/app/etc/user.yaml"]
