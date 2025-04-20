@@ -36,6 +36,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if ePass != "" {
 		c.Etcd.Pass = ePass
 	}
+	listenOn := os.Getenv("LISTEN_ON")
+	if listenOn != "" {
+		c.ListenOn = listenOn
+	}
 	return &ServiceContext{
 		Config: c,
 	}
